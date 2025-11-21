@@ -4,13 +4,11 @@ import os
 from pdf2image import convert_from_path
 from io import BytesIO
 
-prompt = "Give a 2-3 sentence summary explaining what is in this image."
-file_path = "../data/J15951_S00756/J15951_S00756.pdf"
 
-# Initialize client
-load_dotenv()
-api_key = os.environ.get("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)
+# Load prompt from file
+def load_prompt(prompt_file="prompt.txt"):
+    with open(prompt_file, "r", encoding="utf-8") as f:
+        return f.read().strip()
 
 
 # Function to create a file with the Files API
@@ -44,7 +42,7 @@ def request(prompt, file_id):
                 {
                     "type": "input_image",
                     "file_id": file_id,
-                    "detail": "low"
+                    "detail": "high"
                 },
             ],
         }],
@@ -56,17 +54,22 @@ def analyze_image(file_id):
     return request(prompt, file_id)
     
 
-def main():
-    # Read file
-    print("Reading file...", flush=True)
-    file_id = create_file(file_path)
-    print("File ID: ", file_id, flush=True)
 
-    # Generate response
-    print("Generating response...", flush=True)
-    response = analyze_image(file_id)
-    print("Response: ", response.output_text, flush=True)
+# Initialize client
+load_dotenv()
+api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
+# Set constants
+prompt = load_prompt()
+file_path = "../data/J15951_S00756/J15951_S00756.pdf"
 
-if __name__ == "__main__":
-    main()
+# Read file
+print("Reading file...", flush=True)
+file_id = create_file(file_path)
+print("File ID: ", file_id, flush=True)
+
+# Generate response
+print("Generating response...", flush=True)
+response = analyze_image(file_id)
+print("Response: ", response.output_text, flush=True)
